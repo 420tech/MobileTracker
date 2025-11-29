@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Shell
+    x:Class="MobileTracker.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:MobileTracker.Views"
+    Title="MobileTracker">
+
+    <!-- Tabs for mobile, toolbars for desktop -->
+    <TabBar x:Name="MainTabBar">
+        <Tab Title="Dashboard" Icon="dashboard.png">
+            <ShellContent ContentTemplate="{DataTemplate views:DashboardPage}" Route="DashboardPage" />
+        </Tab>
+        <Tab Title="Time Tracker" Icon="timetracker.png">
+            <ShellContent ContentTemplate="{DataTemplate views:TimeTrackerPage}" Route="TimeTrackerPage" />
+        </Tab>
+        <Tab Title="Client" Icon="client.png">
+            <ShellContent ContentTemplate="{DataTemplate views:ClientPage}" Route="ClientPage" />
+        </Tab>
+        <Tab Title="Invoice" Icon="invoice.png">
+            <ShellContent ContentTemplate="{DataTemplate views:InvoicePage}" Route="InvoicePage" />
+        </Tab>
+        <Tab Title="Settings" Icon="settings.png">
+            <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Route="SettingsPage" />
+        </Tab>
+    </TabBar>
+
+    <!-- Toolbar for desktop platforms (Windows/Mac) -->
+    <FlyoutItem Title="Dashboard" FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent ContentTemplate="{DataTemplate views:DashboardPage}" Route="DashboardPage" />
+    </FlyoutItem>
+    <FlyoutItem Title="Time Tracker" FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent ContentTemplate="{DataTemplate views:TimeTrackerPage}" Route="TimeTrackerPage" />
+    </FlyoutItem>
+    <FlyoutItem Title="Client" FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent ContentTemplate="{DataTemplate views:ClientPage}" Route="ClientPage" />
+    </FlyoutItem>
+    <FlyoutItem Title="Invoice" FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent ContentTemplate="{DataTemplate views:InvoicePage}" Route="InvoicePage" />
+    </FlyoutItem>
+    <FlyoutItem Title="Settings" FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Route="SettingsPage" />
+    </FlyoutItem>
+
+</Shell>

@@ -1,0 +1,46 @@
+# Ignore Visual Studio temporary files, build results, and
+# user-specific files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+build/
+[Bb]in/
+[Oo]bj/
+
+# MAUI/NET artifacts
+*.apk
+*.aab
+*.app
+*.ipa
+*.pdb
+*.dll
+*.exe
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Rider
+.idea/
+*.sln.iml
+
+# Others
+*.log
+*.tlog
+*.cache
+*.dbmdl
+*.db
+*.bak
+*.swp
+*.tmp
+*.vscode/
