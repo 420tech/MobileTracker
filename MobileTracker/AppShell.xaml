@@ -42,5 +42,11 @@
     <FlyoutItem Title="Settings" FlyoutDisplayOptions="AsMultipleItems">
         <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" Route="SettingsPage" />
     </FlyoutItem>
+    <FlyoutItem Title="Login" FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent ContentTemplate="{DataTemplate views:LoginPage}" Route="LoginPage" />
+    </FlyoutItem>
+    <FlyoutItem Title="Registration" FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent ContentTemplate="{DataTemplate views:RegistrationPage}" Route="RegistrationPage" />
+    </FlyoutItem>
 
 </Shell>
