@@ -51,11 +51,12 @@ namespace MobileTracker.UnitTests.Services
             var svc = new FirebaseRealtimeDatabaseService(_httpClient, authService.Object);
 
             // Act
-            var result = await svc.GetAsync<dynamic>("mydata");
+            var result = await svc.GetAsync<System.Collections.Generic.Dictionary<string,string>>("mydata");
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("bar", (string)result.foo);
+            Assert.True(result.ContainsKey("foo"));
+            Assert.Equal("bar", result["foo"]);
 
             _mockHandler.Protected().Verify("SendAsync", Times.Once(), ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get && req.RequestUri!.ToString().Contains("users/user-123/mydata.json")), ItExpr.IsAny<CancellationToken>());
         }
@@ -135,6 +136,39 @@ namespace MobileTracker.UnitTests.Services
             var svc = new FirebaseRealtimeDatabaseService(_httpClient, authService.Object);
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => svc.GetAsync<object>("should-fail"));
+        }
+
+        [Fact]
+        public async Task GetAsync_WhenNoBaseUrlConfigured_ThrowsInvalidOperationException()
+        {
+            // Remove any env var to simulate misconfiguration
+            Environment.SetEnvironmentVariable("FIREBASE_DATABASE_URL", null);
+
+            var user = new AppUser { Uid = "user-1", Email = "a@b.com" };
+            var authService = new Mock<IAuthService>();
+            authService.Setup(a => a.GetCurrentUser()).Returns(user);
+            authService.Setup(a => a.GetIdTokenAsync()).ReturnsAsync("tok");
+
+            var svc = new FirebaseRealtimeDatabaseService(_httpClient, authService.Object);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => svc.GetAsync<object>("abc"));
+        }
+
+        [Fact]
+        public async Task GetAsync_WhenEndpointReturnsError_ThrowsHttpRequestException()
+        {
+            var user = new AppUser { Uid = "user-2", Email = "a@b.com" };
+            var authService = new Mock<IAuthService>();
+            authService.Setup(a => a.GetCurrentUser()).Returns(user);
+            authService.Setup(a => a.GetIdTokenAsync()).ReturnsAsync("tok");
+
+            _mockHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.Forbidden, Content = new StringContent("{ \"error\": \"permission_denied\" }") });
+
+            var svc = new FirebaseRealtimeDatabaseService(_httpClient, authService.Object);
+
+            await Assert.ThrowsAsync<HttpRequestException>(() => svc.GetAsync<object>("somepath"));
         }
     }
 }
