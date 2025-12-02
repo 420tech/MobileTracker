@@ -9,11 +9,11 @@
 
 ### Questions / decisions (Dec 2025-12-02)
 
-- Q1: Should the client-side service support background/offline sync (queuing writes while offline) or strictly REST-based realtime operations?  
-  A: [NEEDS CLARIFICATION] — offline sync increases scope and testing complexity; if not required now we will implement REST-backed CRUD with clean interfaces and add offline support later.
+-- Q1: Should the client-side service support background/offline sync (queuing writes while offline) or strictly REST-based realtime operations?  
+  A: REST-only v1 (no offline sync). Offline sync is explicitly out-of-scope for this iteration; we'll implement REST-backed CRUD with clean interfaces and add offline support later if requested.
 
-- Q2: Which logical collections should be scoped under each user by default? (Candidates: clients, invoices, timeEntries, userSettings)  
-  A: We'll assume the minimal set (clients, invoices, timeEntries, settings) but will confirm if additional collections (e.g., attachments, audit logs) are needed.  
+-- Q2: Which logical collections should be scoped under each user by default? (Candidates: clients, invoices, timeEntries, userSettings)  
+  A: Use the default set: clients, invoices, timeEntries, settings. Attachments and audit logs may be added later as separate features.
 
 > Note: Keep clarifications limited to high-impact decisions; defaults above are reasonable and can be updated later.
 
