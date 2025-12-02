@@ -11,6 +11,15 @@ namespace MobileTracker.Views
             BindingContext = vm;
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            if (BindingContext is ClientViewModel vm)
+            {
+                _ = vm.LoadClientsAsync();
+            }
+        }
+
         // Navigation buttons removed for clean UI
     }
 }

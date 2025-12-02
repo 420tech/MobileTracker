@@ -1,7 +1,32 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MobileTracker.Views.ClientPage">
-    <StackLayout Spacing="24" Padding="24">
-        <Label Text="Client" HorizontalOptions="Center" FontSize="32"/>
+    <StackLayout Spacing="12" Padding="12">
+        <Label Text="Clients" HorizontalOptions="Center" FontSize="28" />
+
+        <CollectionView ItemsSource="{Binding Clients}" SelectionMode="Single" SelectedItem="{Binding SelectedClient}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="8" Margin="6" BorderColor="LightGray">
+                        <StackLayout>
+                            <Label Text="{Binding Name}" FontAttributes="Bold" />
+                            <Label Text="{Binding ContactEmail}" FontSize="12" TextColor="Gray" />
+                        </StackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <StackLayout Orientation="Vertical" Spacing="6">
+            <Entry Placeholder="Name" Text="{Binding NewClient.Name}" />
+            <Entry Placeholder="Contact email" Text="{Binding NewClient.ContactEmail}" Keyboard="Email" />
+            <Editor Placeholder="Notes" Text="{Binding NewClient.Notes}" HeightRequest="80" />
+            <Button Text="Add client" Command="{Binding AddClientCommand}" />
+        </StackLayout>
+
+        <StackLayout Orientation="Horizontal" Spacing="8">
+            <Button Text="Update" Command="{Binding UpdateClientCommand}" IsEnabled="{Binding SelectedClient}" />
+            <Button Text="Delete" Command="{Binding DeleteClientCommand}" IsEnabled="{Binding SelectedClient}" BackgroundColor="LightCoral" />
+        </StackLayout>
     </StackLayout>
 </ContentPage>

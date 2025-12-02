@@ -1,7 +1,32 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MobileTracker.Views.InvoicePage">
-    <StackLayout Spacing="24" Padding="24">
-        <Label Text="Invoice" HorizontalOptions="Center" FontSize="32"/>
+    <StackLayout Spacing="12" Padding="12">
+        <Label Text="Invoices" HorizontalOptions="Center" FontSize="28" />
+
+        <CollectionView ItemsSource="{Binding Invoices}" SelectionMode="Single" SelectedItem="{Binding SelectedInvoice}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="8" Margin="6" BorderColor="LightGray">
+                        <StackLayout>
+                            <Label Text="{Binding ClientId}" FontAttributes="Bold" />
+                            <Label Text="{Binding Amount}" FontSize="12" TextColor="Gray" />
+                        </StackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <StackLayout Orientation="Vertical" Spacing="6">
+            <Entry Placeholder="ClientId" Text="{Binding NewInvoice.ClientId}" />
+            <Entry Placeholder="Amount" Text="{Binding NewInvoice.Amount}" Keyboard="Numeric" />
+            <Entry Placeholder="Currency" Text="{Binding NewInvoice.Currency}" />
+            <Button Text="Add invoice" Command="{Binding AddInvoiceCommand}" />
+        </StackLayout>
+
+        <StackLayout Orientation="Horizontal" Spacing="8">
+            <Button Text="Update" Command="{Binding UpdateInvoiceCommand}" IsEnabled="{Binding SelectedInvoice}" />
+            <Button Text="Delete" Command="{Binding DeleteInvoiceCommand}" IsEnabled="{Binding SelectedInvoice}" BackgroundColor="LightCoral" />
+        </StackLayout>
     </StackLayout>
 </ContentPage>

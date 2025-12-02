@@ -1,7 +1,32 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MobileTracker.Views.TimeTrackerPage">
-    <StackLayout Spacing="24" Padding="24">
-        <Label Text="Time Tracker" HorizontalOptions="Center" FontSize="32"/>
+    <StackLayout Spacing="12" Padding="12">
+        <Label Text="Time Tracker" HorizontalOptions="Center" FontSize="28" />
+
+        <CollectionView ItemsSource="{Binding TimeEntries}" SelectionMode="Single" SelectedItem="{Binding SelectedEntry}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="8" Margin="6" BorderColor="LightGray">
+                        <StackLayout>
+                            <Label Text="{Binding Description}" FontAttributes="Bold" />
+                            <Label Text="{Binding DurationMinutes}" FontSize="12" TextColor="Gray" />
+                        </StackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <StackLayout Orientation="Vertical" Spacing="6">
+            <Entry Placeholder="ClientId" Text="{Binding NewEntry.ClientId}" />
+            <Entry Placeholder="Description" Text="{Binding NewEntry.Description}" />
+            <Entry Placeholder="Duration (minutes)" Text="{Binding NewEntry.DurationMinutes}" Keyboard="Numeric" />
+            <Button Text="Add entry" Command="{Binding AddEntryCommand}" />
+        </StackLayout>
+
+        <StackLayout Orientation="Horizontal" Spacing="8">
+            <Button Text="Update" Command="{Binding UpdateEntryCommand}" IsEnabled="{Binding SelectedEntry}" />
+            <Button Text="Delete" Command="{Binding DeleteEntryCommand}" IsEnabled="{Binding SelectedEntry}" BackgroundColor="LightCoral" />
+        </StackLayout>
     </StackLayout>
 </ContentPage>
