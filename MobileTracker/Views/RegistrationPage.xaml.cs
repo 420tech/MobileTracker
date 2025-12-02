@@ -1,3 +1,4 @@
+using System;
 using MobileTracker.ViewModels;
 using MobileTracker.Services;
 
@@ -11,10 +12,10 @@ namespace MobileTracker.Views
             BindingContext = viewModel;
         }
 
-        // Parameterless constructor for Shell navigation
+        // Parameterless constructor for Shell navigation — use DI only (no manual new)
         public RegistrationPage() : this(
             App.Services?.GetService<RegistrationViewModel>()
-            ?? new RegistrationViewModel(App.Services?.GetService<IAuthService>() ?? new FirebaseAuthService())
+            ?? throw new InvalidOperationException("RegistrationViewModel not registered in DI. Ensure MauiProgram registers RegistrationViewModel in services.")
         )
         { }
     }

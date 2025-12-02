@@ -1,0 +1,180 @@
+openapi: 3.0.3
+info:
+  title: Firebase Authorization Service Contract
+  description: Interface contract for Firebase authentication services in MAUI app
+  version: 1.0.0
+  contact:
+    name: MobileTracker Development Team
+
+servers:
+  - url: 'firebase-auth://local'
+    description: Local Firebase Authentication service
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user account
+      operationId: RegisterUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: RFC 5322 compliant email address
+                password:
+                  type: string
+                  minLength: 8
+                  description: Password with at least 8 characters, letters and numbers
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResult'
+        '400':
+          description: Registration failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+
+  /auth/login:
+    post:
+      summary: Authenticate user login
+      operationId: LoginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResult'
+        '400':
+          description: Login failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '423':
+          description: Account locked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+
+  /auth/reset-password:
+    post:
+      summary: Request password reset
+      operationId: ResetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Reset email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "If an account exists, a reset email has been sent"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+
+  /auth/logout:
+    post:
+      summary: Logout current user
+      operationId: LogoutUser
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logged out successfully"
+
+components:
+  schemas:
+    AuthResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          description: Firebase auth token
+
+    User:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        registrationDate:
+          type: string
+          format: date-time
+        lastLoginDate:
+          type: string
+          format: date-time
+        accountStatus:
+          type: string
+          enum: [Active, Locked]
+
+    ErrorResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Invalid credentials"
+        code:
+          type: string
+          example: "AUTH_FAILED"

@@ -19,6 +19,7 @@
         </Label>
         <Button Text="Forgot Password?" Command="{Binding ForgotPasswordCommand}" />
         <Label Text="{Binding ErrorMessage}" TextColor="Red" IsVisible="{Binding HasError}" />
+        <Label Text="{Binding SuccessMessage}" TextColor="Green" IsVisible="{Binding HasSuccessMessage}" />
         <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
     </VerticalStackLayout>
 </ContentPage>
