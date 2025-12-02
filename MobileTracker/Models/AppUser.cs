@@ -4,6 +4,14 @@ namespace MobileTracker.Models
     {
         public string Uid { get; set; }
         public string Email { get; set; }
-        // Add display name, photo URL, etc. if needed
+        public DateTime RegistrationDate { get; set; }
+        public DateTime? LastLoginDate { get; set; }
+        public AccountStatus AccountStatus { get; set; }
+    }
+
+    public enum AccountStatus
+    {
+        Active,
+        Locked
     }
 }

@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-windows10.0.19041.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!-- Disable MAUI resizetizer processing for test project to avoid duplicate image output errors -->
+    <DisableResizetizer>true</DisableResizetizer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <!-- Provide MAUI runtime assemblies without importing build tooling (resizetizer) -->
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.10" ExcludeAssets="build" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Keep a ProjectReference to the app but don't flow its content files or runtime assets into the test build -->
+    <ProjectReference Include="..\..\MobileTracker\MobileTracker.csproj">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>compile</IncludeAssets>
+      <ExcludeAssets>build;contentFiles;runtime</ExcludeAssets>
+      <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    </ProjectReference>
+    <!-- Prevent the test build from processing the app's MAUI images (avoid resizetizer duplicates) -->
+    <MauiIcon Remove="Resources\AppIcon\appicon.svg" />
+    <MauiIcon Remove="Resources\AppIcon\appicon_fg.svg" />
+    <MauiImage Remove="Resources\AppIcon\appicon.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

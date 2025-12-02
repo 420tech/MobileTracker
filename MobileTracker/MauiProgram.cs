@@ -10,6 +10,9 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
 	{
+	// Try loading a .env file (if present) into environment variables so
+	// things like FIREBASE_API_KEY are available at startup in dev/test scenarios.
+	Services.EnvLoader.LoadDotEnvIfExists();
 		var builder = MauiApp.CreateBuilder();
 		builder
 			   .UseMauiApp<App>()
@@ -20,8 +23,6 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
 
-
-			   // Register ViewModels
 			   builder.Services.AddTransient<DashboardViewModel>();
 			   builder.Services.AddTransient<TimeTrackerViewModel>();
 			   builder.Services.AddTransient<ClientViewModel>();
@@ -29,6 +30,7 @@ public static class MauiProgram
 			   builder.Services.AddTransient<SettingsViewModel>();
 			   builder.Services.AddTransient<LoginViewModel>();
 			   builder.Services.AddTransient<RegistrationViewModel>();
+			   builder.Services.AddTransient<PasswordResetViewModel>();
 
 			   // Register Views
 			   builder.Services.AddTransient<DashboardPage>();
@@ -38,15 +40,39 @@ public static class MauiProgram
 			   builder.Services.AddTransient<SettingsPage>();
 			   builder.Services.AddTransient<LoginPage>();
 			   builder.Services.AddTransient<RegistrationPage>();
+			   builder.Services.AddTransient<PasswordResetPage>();
 
-			   // Register Auth Service
-			   builder.Services.AddSingleton<IAuthService, FirebaseAuthService>();
+			   // Register Auth Service (pass ILogger from DI). Keep singleton so auth state is preserved across app.
+			   builder.Services.AddSingleton<IAuthService>(sp =>
+				   new FirebaseAuthService(new System.Net.Http.HttpClient(), sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<FirebaseAuthService>>()));
+
+			// Register a navigation abstraction backed by Shell for platform runtime
+			builder.Services.AddSingleton<INavigationService, ShellNavigationService>();
 
 
+	// Add Console logs so when running with `dotnet run` or in CI we see log output
+	builder.Logging.AddConsole();
 #if DEBUG
-		builder.Logging.AddDebug();
+	// Show debug-level logs locally so request-level Debug messages are visible during development.
+	builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug);
+	builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
+		var app = builder.Build();
+
+		// Try to log whether we have a Firebase API key available at startup.
+		try
+		{
+			var loggerFactory = app.Services.GetService<Microsoft.Extensions.Logging.ILoggerFactory>();
+			var logger = loggerFactory?.CreateLogger("Startup");
+			var hasKey = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FIREBASE_API_KEY"));
+			logger?.LogInformation("FIREBASE_API_KEY present: {HasKey}", hasKey);
+		}
+		catch
+		{
+			// best-effort logging — don't crash startup if logging isn't available yet
+		}
+
+		return app;
 	}
 }

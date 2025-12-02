@@ -9,15 +9,27 @@ namespace MobileTracker.ViewModels
     public partial class LoginViewModel : ObservableObject
     {
         private readonly IAuthService _authService;
+        private readonly INavigationService _navigationService;
         [ObservableProperty] private string? email = string.Empty;
         [ObservableProperty] private string? password = string.Empty;
         [ObservableProperty] private string? errorMessage = string.Empty;
         [ObservableProperty] private bool hasError;
         [ObservableProperty] private bool isBusy;
+        [ObservableProperty] private bool isAlreadyAuthenticated;
+        [ObservableProperty] private bool hasSuccessMessage;
+        [ObservableProperty] private string? successMessage = string.Empty;
 
-        public LoginViewModel(IAuthService authService)
+        public LoginViewModel(IAuthService authService, INavigationService navigationService)
         {
             _authService = authService;
+            _navigationService = navigationService;
+            CheckAuthenticationState();
+        }
+
+        private void CheckAuthenticationState()
+        {
+            // Do not reference MAUI Shell directly here to keep ViewModel platform-agnostic (helps unit testing).
+            IsAlreadyAuthenticated = _authService.IsAuthenticated;
         }
 
         [RelayCommand]
@@ -34,8 +46,8 @@ namespace MobileTracker.ViewModels
                     return;
                 }
                 var user = await _authService.LoginAsync(Email!, Password!);
-                // Navigate to dashboard/main app
-                await Shell.Current.GoToAsync("//DashboardPage");
+                // Navigate to the dashboard using the registered navigation service
+                await _navigationService.NavigateToAsync("//DashboardPage");
             }
             catch (Exception ex)
             {
@@ -51,28 +63,8 @@ namespace MobileTracker.ViewModels
         [RelayCommand]
         private async Task GoToRegister()
         {
-            // If app is using Shell this will work. For the initial unauthenticated flow
-            // we start a NavigationPage (not Shell) so Shell.Current is null. Prefer pushing
-            // the DI-resolved RegistrationPage onto the current MainPage navigation stack.
-            try
-            {
-                var regPage = App.Services?.GetService<MobileTracker.Views.RegistrationPage>();
-                var nav = Application.Current?.Windows?.FirstOrDefault()?.Page?.Navigation;
-                if (regPage != null && nav != null)
-                {
-                    await nav.PushAsync(regPage);
-                    return;
-                }
-            }
-            catch
-            {
-                // ignore and fallback to Shell navigation
-            }
-
-            if (Shell.Current != null)
-            {
-                await Shell.Current.GoToAsync(nameof(MobileTracker.Views.RegistrationPage));
-            }
+            // Navigate to registration page via navigation service
+            await _navigationService.NavigateToAsync("//RegistrationPage");
         }
 
         [RelayCommand]
@@ -80,6 +72,7 @@ namespace MobileTracker.ViewModels
         {
             IsBusy = true;
             HasError = false;
+            HasSuccessMessage = false;
             try
             {
                 if (string.IsNullOrWhiteSpace(Email))
@@ -89,8 +82,8 @@ namespace MobileTracker.ViewModels
                     return;
                 }
                 await _authService.SendPasswordResetEmailAsync(Email!);
-                ErrorMessage = "Password reset email sent.";
-                HasError = true;
+                SuccessMessage = "Password reset email sent. Please check your email and follow the instructions.";
+                HasSuccessMessage = true;
             }
             catch (Exception ex)
             {
