@@ -13,6 +13,7 @@ namespace MobileTracker.Services
         private readonly string _apiKey;
         private readonly ILogger<FirebaseAuthService> _logger;
         private AppUser _currentUser;
+        private string? _idToken;
         private readonly Dictionary<string, int> _failedLoginAttempts = new();
         private readonly Dictionary<string, DateTime> _lockoutUntil = new();
         private const int MaxFailedAttempts = 5;
@@ -73,6 +74,8 @@ namespace MobileTracker.Services
                     RegistrationDate = DateTime.UtcNow,
                     AccountStatus = AccountStatus.Active
                 };
+                // store id token for authenticated calls
+                _idToken = result?.idToken;
                 return _currentUser;
             }
             else
@@ -115,6 +118,9 @@ namespace MobileTracker.Services
                     AccountStatus = AccountStatus.Active
                 };
 
+                // store id token for authenticated calls
+                _idToken = result?.idToken;
+
                 // Reset failed attempts on successful login
                 _failedLoginAttempts.Remove(email);
                 _lockoutUntil.Remove(email);
@@ -142,7 +148,14 @@ namespace MobileTracker.Services
         public Task LogoutAsync()
         {
             _currentUser = null;
+            _idToken = null;
             return Task.CompletedTask;
+        }
+
+        public Task<string?> GetIdTokenAsync()
+        {
+            // In a real implementation we'd refresh tokens when expired; for now return what we have.
+            return Task.FromResult(_idToken);
         }
 
         public async Task SendPasswordResetEmailAsync(string email)

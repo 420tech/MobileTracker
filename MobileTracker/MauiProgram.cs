@@ -42,12 +42,18 @@ public static class MauiProgram
 			   builder.Services.AddTransient<RegistrationPage>();
 			   builder.Services.AddTransient<PasswordResetPage>();
 
-			   // Register Auth Service (pass ILogger from DI). Keep singleton so auth state is preserved across app.
+			   // Register a singleton HttpClient and Auth Service (pass ILogger from DI).
+			   // Keep singletons so auth state and HttpClient are preserved across app lifetime.
+			   builder.Services.AddSingleton<System.Net.Http.HttpClient>();
 			   builder.Services.AddSingleton<IAuthService>(sp =>
-				   new FirebaseAuthService(new System.Net.Http.HttpClient(), sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<FirebaseAuthService>>()));
+				   new FirebaseAuthService(sp.GetRequiredService<System.Net.Http.HttpClient>(), sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<FirebaseAuthService>>()));
 
 			// Register a navigation abstraction backed by Shell for platform runtime
 			builder.Services.AddSingleton<INavigationService, ShellNavigationService>();
+
+			// Register Realtime Database service which will use the FIREBASE_DATABASE_URL env var and the current authenticated user's id token
+			// Use the non-generic overload to avoid ambiguity with toolkit's AddSingleton<TView,TViewModel>
+			builder.Services.AddSingleton(typeof(MobileTracker.Services.IFirebaseDatabaseService), typeof(MobileTracker.Services.FirebaseRealtimeDatabaseService));
 
 
 	// Add Console logs so when running with `dotnet run` or in CI we see log output
