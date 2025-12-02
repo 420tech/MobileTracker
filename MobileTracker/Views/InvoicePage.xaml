@@ -24,6 +24,9 @@
             <Button Text="Add invoice" Command="{Binding AddInvoiceCommand}" />
         </StackLayout>
 
+        <Label Text="{Binding ErrorMessage}" TextColor="Crimson" IsVisible="{Binding HasError}" />
+        <Label Text="{Binding SuccessMessage}" TextColor="Green" IsVisible="{Binding HasSuccessMessage}" />
+
         <StackLayout Orientation="Horizontal" Spacing="8">
             <Button Text="Update" Command="{Binding UpdateInvoiceCommand}" IsEnabled="{Binding SelectedInvoice}" />
             <Button Text="Delete" Command="{Binding DeleteInvoiceCommand}" IsEnabled="{Binding SelectedInvoice}" BackgroundColor="LightCoral" />

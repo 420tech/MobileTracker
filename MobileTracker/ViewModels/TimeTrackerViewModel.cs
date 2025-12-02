@@ -25,6 +25,18 @@ namespace MobileTracker.ViewModels
         [ObservableProperty]
         bool isBusy;
 
+        [ObservableProperty]
+        private bool hasError;
+
+        [ObservableProperty]
+        private string? errorMessage;
+
+        [ObservableProperty]
+        private bool hasSuccessMessage;
+
+        [ObservableProperty]
+        private string? successMessage;
+
         public TimeTrackerViewModel(IFirebaseDatabaseService db, ILogger<TimeTrackerViewModel>? logger = null)
         {
             _db = db;
@@ -59,29 +71,65 @@ namespace MobileTracker.ViewModels
         [RelayCommand]
         public async Task AddEntryAsync()
         {
+            HasError = false;
+            HasSuccessMessage = false;
             if (NewEntry == null) return;
-            NewEntry.Validate();
-            var key = await _db.PushAsync("timeEntries", NewEntry);
-            NewEntry.Id = key;
-            TimeEntries.Add(NewEntry);
-            NewEntry = new TimeEntry { StartTime = DateTime.UtcNow };
+            try
+            {
+                NewEntry.Validate();
+                var key = await _db.PushAsync("timeEntries", NewEntry);
+                NewEntry.Id = key;
+                TimeEntries.Add(NewEntry);
+                SuccessMessage = "Time entry added";
+                HasSuccessMessage = true;
+                NewEntry = new TimeEntry { StartTime = DateTime.UtcNow };
+            }
+            catch (System.Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                HasError = true;
+            }
         }
 
         [RelayCommand]
         public async Task UpdateEntryAsync()
         {
+            HasError = false;
+            HasSuccessMessage = false;
             if (SelectedEntry == null) return;
-            SelectedEntry.Validate();
-            await _db.SetAsync($"timeEntries/{SelectedEntry.Id}", SelectedEntry);
+            try
+            {
+                SelectedEntry.Validate();
+                await _db.SetAsync($"timeEntries/{SelectedEntry.Id}", SelectedEntry);
+                SuccessMessage = "Time entry updated";
+                HasSuccessMessage = true;
+            }
+            catch (System.Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                HasError = true;
+            }
         }
 
         [RelayCommand]
         public async Task DeleteEntryAsync()
         {
+            HasError = false;
+            HasSuccessMessage = false;
             if (SelectedEntry == null) return;
-            await _db.DeleteAsync($"timeEntries/{SelectedEntry.Id}");
-            TimeEntries.Remove(SelectedEntry);
-            SelectedEntry = null;
+            try
+            {
+                await _db.DeleteAsync($"timeEntries/{SelectedEntry.Id}");
+                TimeEntries.Remove(SelectedEntry);
+                SelectedEntry = null;
+                SuccessMessage = "Time entry deleted";
+                HasSuccessMessage = true;
+            }
+            catch (System.Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                HasError = true;
+            }
         }
     }
 }

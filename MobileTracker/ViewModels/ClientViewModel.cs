@@ -26,6 +26,18 @@ namespace MobileTracker.ViewModels
         [ObservableProperty]
         bool isBusy;
 
+        [ObservableProperty]
+        private bool hasError;
+
+        [ObservableProperty]
+        private string? errorMessage;
+
+        [ObservableProperty]
+        private bool hasSuccessMessage;
+
+        [ObservableProperty]
+        private string? successMessage;
+
         public ClientViewModel(IFirebaseDatabaseService db, ILogger<ClientViewModel>? logger = null)
         {
             _db = db;
@@ -60,29 +72,65 @@ namespace MobileTracker.ViewModels
         [RelayCommand]
         public async Task AddClientAsync()
         {
+            HasError = false;
+            HasSuccessMessage = false;
             if (NewClient == null) return;
-            NewClient.Validate();
-            var key = await _db.PushAsync("clients", NewClient);
-            NewClient.Id = key;
-            Clients.Add(NewClient);
-            NewClient = new Client();
+            try
+            {
+                NewClient.Validate();
+                var key = await _db.PushAsync("clients", NewClient);
+                NewClient.Id = key;
+                Clients.Add(NewClient);
+                SuccessMessage = "Client added";
+                HasSuccessMessage = true;
+                NewClient = new Client();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                HasError = true;
+            }
         }
 
         [RelayCommand]
         public async Task UpdateClientAsync()
         {
+            HasError = false;
+            HasSuccessMessage = false;
             if (SelectedClient == null) return;
-            SelectedClient.Validate();
-            await _db.SetAsync($"clients/{SelectedClient.Id}", SelectedClient);
+            try
+            {
+                SelectedClient.Validate();
+                await _db.SetAsync($"clients/{SelectedClient.Id}", SelectedClient);
+                SuccessMessage = "Client updated";
+                HasSuccessMessage = true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                HasError = true;
+            }
         }
 
         [RelayCommand]
         public async Task DeleteClientAsync()
         {
+            HasError = false;
+            HasSuccessMessage = false;
             if (SelectedClient == null) return;
-            await _db.DeleteAsync($"clients/{SelectedClient.Id}");
-            Clients.Remove(SelectedClient);
-            SelectedClient = null;
+            try
+            {
+                await _db.DeleteAsync($"clients/{SelectedClient.Id}");
+                Clients.Remove(SelectedClient);
+                SelectedClient = null;
+                SuccessMessage = "Client deleted";
+                HasSuccessMessage = true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                HasError = true;
+            }
         }
     }
 }

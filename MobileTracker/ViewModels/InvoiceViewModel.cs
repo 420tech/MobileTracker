@@ -25,6 +25,18 @@ namespace MobileTracker.ViewModels
         [ObservableProperty]
         bool isBusy;
 
+        [ObservableProperty]
+        private bool hasError;
+
+        [ObservableProperty]
+        private string? errorMessage;
+
+        [ObservableProperty]
+        private bool hasSuccessMessage;
+
+        [ObservableProperty]
+        private string? successMessage;
+
         public InvoiceViewModel(IFirebaseDatabaseService db, ILogger<InvoiceViewModel>? logger = null)
         {
             _db = db;
@@ -59,29 +71,65 @@ namespace MobileTracker.ViewModels
         [RelayCommand]
         public async Task AddInvoiceAsync()
         {
+            HasError = false;
+            HasSuccessMessage = false;
             if (NewInvoice == null) return;
-            NewInvoice.Validate();
-            var key = await _db.PushAsync("invoices", NewInvoice);
-            NewInvoice.Id = key;
-            Invoices.Add(NewInvoice);
-            NewInvoice = new Invoice();
+            try
+            {
+                NewInvoice.Validate();
+                var key = await _db.PushAsync("invoices", NewInvoice);
+                NewInvoice.Id = key;
+                Invoices.Add(NewInvoice);
+                SuccessMessage = "Invoice added";
+                HasSuccessMessage = true;
+                NewInvoice = new Invoice();
+            }
+            catch (System.Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                HasError = true;
+            }
         }
 
         [RelayCommand]
         public async Task UpdateInvoiceAsync()
         {
+            HasError = false;
+            HasSuccessMessage = false;
             if (SelectedInvoice == null) return;
-            SelectedInvoice.Validate();
-            await _db.SetAsync($"invoices/{SelectedInvoice.Id}", SelectedInvoice);
+            try
+            {
+                SelectedInvoice.Validate();
+                await _db.SetAsync($"invoices/{SelectedInvoice.Id}", SelectedInvoice);
+                SuccessMessage = "Invoice updated";
+                HasSuccessMessage = true;
+            }
+            catch (System.Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                HasError = true;
+            }
         }
 
         [RelayCommand]
         public async Task DeleteInvoiceAsync()
         {
+            HasError = false;
+            HasSuccessMessage = false;
             if (SelectedInvoice == null) return;
-            await _db.DeleteAsync($"invoices/{SelectedInvoice.Id}");
-            Invoices.Remove(SelectedInvoice);
-            SelectedInvoice = null;
+            try
+            {
+                await _db.DeleteAsync($"invoices/{SelectedInvoice.Id}");
+                Invoices.Remove(SelectedInvoice);
+                SelectedInvoice = null;
+                SuccessMessage = "Invoice deleted";
+                HasSuccessMessage = true;
+            }
+            catch (System.Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                HasError = true;
+            }
         }
     }
 }
